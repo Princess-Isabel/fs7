@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product, cartUser
+from .models import Product, cartUser, order_item
 from django.contrib.auth.models import User
 from rest_framework.validators import UniqueValidator
 
@@ -37,3 +37,15 @@ class CartItemSerializer(serializers.ModelSerializer):
     class Meta:
         model = cartUser
         fields = ['card_id', 'product', 'product_id', 'qty']
+
+class PurchaseHistorySerializer(serializers.ModelSerializer):
+    product = ProductSerializer(source='product_id', read_only=True)
+    purchase_date = serializers.DateTimeField(source='payment_id.paid_at', read_only=True)
+    amount = serializers.SerializerMethodField()
+
+    class Meta:
+        model = order_item
+        fields = ['order_id', 'product', 'qty', 'price', 'purchase_date', 'amount']
+
+    def get_amount(self, obj):
+        return obj.price * obj.qty

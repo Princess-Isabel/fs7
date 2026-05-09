@@ -7,7 +7,9 @@ from .views import (get_products,
                     delete_cart_item, 
                     profile_view,
                     cart_view,
-                    add_to_cart
+                    add_to_cart,
+                    purchase_history_view,
+                    delete_purchase_history_item
                     ) 
 
 
@@ -20,6 +22,8 @@ urlpatterns = [
     path('register/', register_user, name='register'),
     path('profile/', profile_view, name='profile'),
     path('logout/', logout_user, name='logout'),
+    path('purchase-history/', purchase_history_view, name='purchase-history'),
+    path('purchase-history/delete/<int:pk>/', delete_purchase_history_item, name='delete-purchase-history-item'),
 
     #cart api endpoints
     path('cart/add/', add_to_cart, name='add-to-cart'), # POST endpoint to add items to cart

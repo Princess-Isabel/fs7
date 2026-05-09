@@ -1,6 +1,6 @@
 from django.shortcuts import render
-from .models import Product, cartUser
-from .serializer import ProductSerializer, RegisterSerializer, UserSerializer, CartItemSerializer
+from .models import Product, cartUser, order_item
+from .serializer import ProductSerializer, RegisterSerializer, UserSerializer, CartItemSerializer, PurchaseHistorySerializer
 from rest_framework import status
 
 from rest_framework.decorators import api_view, permission_classes
@@ -125,6 +125,28 @@ def delete_cart_item(request, pk):
 
     return Response(status=status.HTTP_204_NO_CONTENT)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def purchase_history_view(request):
+    purchases = order_item.objects.filter(
+        payment_id__user_id=request.user
+    ).select_related('product_id', 'payment_id').order_by(
+        '-payment_id__paid_at', '-order_id'
+    )
+    serializer = PurchaseHistorySerializer(purchases, many=True)
+    return Response(serializer.data)
+
+@api_view(['DELETE'])
+@permission_classes([IsAuthenticated])
+def delete_purchase_history_item(request, pk):
+    purchase = get_object_or_404(
+        order_item,
+        pk=pk,
+        payment_id__user_id=request.user,
+    )
+    purchase.delete()
+
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 
