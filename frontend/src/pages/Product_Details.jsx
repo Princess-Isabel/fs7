@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import Loading from "../components/Loading";
+import { BASE_URL } from "../api/base";
 
-const API_BASE_URL = "http://127.0.0.1:8000";
+
+
+const API_BASE_URL = `${BASE_URL}`;
 
 const getProductImageUrl = (image) => {
   if (!image) return "/images/switch.png";
@@ -31,7 +34,7 @@ const Product_Details = () => {
       setError("");
 
       try {
-        const response = await axios.get(`${API_BASE_URL}/product/${id}/`);
+        const response = await axios.get(`${BASE_URL}/product/${id}/`);
         setProduct(response.data);
         setQuantity(response.data.countInStock > 0 ? 1 : 0);
       } catch (err) {

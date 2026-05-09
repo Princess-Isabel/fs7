@@ -2,6 +2,7 @@ import { useState, useContext } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthProvider";
+import { BASE_URL } from "../api/base";
 
 const inputClasses =
   "w-full h-10 rounded-md border border-gray-400 px-3 text-sm outline-none focus:border-[#132b67] focus:ring-2 focus:ring-[#132b67]/20";
@@ -23,7 +24,7 @@ export default function Login() {
 
   const handleLogin = async () => {
     try {
-      const response = await axios.post("http://127.0.0.1:8000/api/token/", {
+      const response = await axios.post(`${BASE_URL}/api/token/`, {
         username: form.username,
         password: form.password,
       });
@@ -87,7 +88,7 @@ export default function Login() {
 
         {/* Footer text */}
         <p className="text-xs text-[#132b67] mt-5 font-semibold">
-          Don't have account yet? <br /> 
+          Don't have account yet? <br />
           <Link to="/register"> Register Here </Link>
         </p>
       </div>

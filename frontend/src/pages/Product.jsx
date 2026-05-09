@@ -2,6 +2,7 @@ import React, { useState, useEffect, use } from "react";
 import axios from "axios";
 import Loading from "../components/Loading";
 import { Link } from "react-router-dom";
+import { BASE_URL } from "../api/base";
 
 const Products = () => {
   const [products, setProducts] = useState([]);
@@ -9,7 +10,7 @@ const Products = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await axios.get("http://127.0.0.1:8000/products");
+      const response = await axios.get(`${BASE_URL}products`);
       setProducts(response.data);
       setLoading(false);
     } catch (err) {
@@ -36,7 +37,7 @@ const Products = () => {
               <div key={product.product_id} className="group relative">
                 <img
                   alt={product.image}
-                  src={`http://127.0.0.1:8000/${product.image}`}
+                  src={`${BASE_URL}/${product.image}`}
                   className="aspect-square w-full rounded-md bg-gray-200 object-cover group-hover:opacity-75 lg:aspect-auto lg:h-80"
                 />
                 <div className="mt-4 flex justify-between">
