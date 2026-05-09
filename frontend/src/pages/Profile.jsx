@@ -1,10 +1,14 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthProvider";
+import { authRequest } from "../api/Auth_refresh";
 
 const Profile = () => {
   const navigate = useNavigate();
   const { logout } = useContext(AuthContext);
+  const [profile, setProfile] = useState(null);
+  const [isProfileLoading, setIsProfileLoading] = useState(true);
+  const [profileError, setProfileError] = useState("");
 
   const purchaseHistory = [
     {
@@ -35,20 +39,47 @@ const Profile = () => {
     navigate("/login");
   };
 
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await authRequest("get", "/profile/");
+        setProfile(response.data);
+      } catch (error) {
+        setProfileError("Unable to load your profile.");
+
+        if (error.response?.status === 401) {
+          navigate("/login", { replace: true });
+        }
+      } finally {
+        setIsProfileLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [navigate]);
+
   return (
     <main className="min-h-screen bg-white px-4 py-8 text-black sm:px-6">
       <section className="mx-auto max-w-[930px] border border-gray-200 bg-white px-7 py-6 shadow-[0_3px_4px_rgba(0,0,0,0.25)] sm:px-8">
         <h1 className="text-[28px] font-bold leading-tight">My Profile</h1>
 
         <div className="mt-5 space-y-3 text-sm">
-          <p>
-            <span className="font-bold">Username:</span>
-            <span className="ml-3">emapleUser</span>
-          </p>
-          <p>
-            <span className="font-bold">Email:</span>
-            <span className="ml-3">exmaple@example.com</span>
-          </p>
+          {isProfileLoading ? (
+            <p className="font-semibold text-gray-600">Loading profile...</p>
+          ) : profileError ? (
+            <p className="font-semibold text-red-600">{profileError}</p>
+          ) : (
+            <>
+              <p>
+                <span className="font-bold">Username:</span>
+                <span className="ml-3">{profile.username}</span>
+              </p>
+              <p>
+                <span className="font-bold">Email:</span>
+                <span className="ml-3">{profile.email}</span>
+              </p>
+            </>
+          )}
         </div>
 
         <div className="mt-4 flex justify-end">
