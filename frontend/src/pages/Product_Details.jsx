@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
-import Loading from "../components/loading";
+import Loading from "../components/Loading";
 
 const API_BASE_URL = "http://127.0.0.1:8000";
 
