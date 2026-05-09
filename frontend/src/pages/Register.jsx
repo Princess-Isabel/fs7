@@ -1,16 +1,21 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import axios from "axios";
+import { Link, useNavigate } from "react-router-dom";
+import { BASE_URL } from "../api/base";
 
 const inputClasses =
   "w-full h-10 rounded-md border border-gray-400 px-3 text-sm outline-none focus:border-[#132b67] focus:ring-2 focus:ring-[#132b67]/20";
 
 export default function Register() {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     username: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
+  const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = (e) => {
     setForm((prev) => ({
@@ -19,9 +24,41 @@ export default function Register() {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const getErrorMessage = (errorData) => {
+    if (!errorData) return "Registration failed. Please try again.";
+    if (typeof errorData === "string") return errorData;
+
+    const firstError = Object.values(errorData)[0];
+    if (Array.isArray(firstError)) return firstError[0];
+    if (typeof firstError === "string") return firstError;
+
+    return "Registration failed. Please check your details.";
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log(form);
+    setError("");
+
+    if (form.password !== form.confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      await axios.post(`${BASE_URL}/register/`, {
+        username: form.username,
+        email: form.email,
+        password: form.password,
+      });
+
+      navigate("/login", { replace: true });
+    } catch (err) {
+      setError(getErrorMessage(err.response?.data));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -32,6 +69,12 @@ export default function Register() {
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-5">
+          {error && (
+            <p className="rounded-md bg-red-50 px-3 py-2 text-xs font-semibold text-red-700">
+              {error}
+            </p>
+          )}
+
           {/* Username */}
           <div>
             <label className="block text-xs font-semibold mb-1">Username</label>
@@ -41,6 +84,7 @@ export default function Register() {
               value={form.username}
               onChange={handleChange}
               className={inputClasses}
+              required
             />
           </div>
 
@@ -53,6 +97,7 @@ export default function Register() {
               value={form.email}
               onChange={handleChange}
               className={inputClasses}
+              required
             />
           </div>
 
@@ -65,6 +110,7 @@ export default function Register() {
               value={form.password}
               onChange={handleChange}
               className={inputClasses}
+              required
             />
           </div>
 
@@ -79,15 +125,17 @@ export default function Register() {
               value={form.confirmPassword}
               onChange={handleChange}
               className={inputClasses}
+              required
             />
           </div>
 
           {/* Button */}
           <button
             type="submit"
-            className="w-full h-10 rounded-md bg-[#132b67] text-white text-sm font-semibold hover:bg-[#0f2558] transition"
+            disabled={isSubmitting}
+            className="w-full h-10 rounded-md bg-[#132b67] text-white text-sm font-semibold hover:bg-[#0f2558] transition disabled:cursor-not-allowed disabled:bg-[#132b67]/70"
           >
-            Register
+            {isSubmitting ? "Registering..." : "Register"}
           </button>
         </form>
 
