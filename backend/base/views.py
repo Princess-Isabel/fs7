@@ -18,10 +18,10 @@ def get_products(request):
     return Response(serializer.data)
 
 @api_view(['GET'])
-def  get_product_details(request, pk):
-     product = get_object_or_404(Product, pk=pk)
-     serializer = ProductSerializer(product)
-     return Response(serializer.data)
+def get_product_details(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+    serializer = ProductSerializer(product)
+    return Response(serializer.data)
 
 @api_view(['POST'])
 def register_user(request):
@@ -31,10 +31,10 @@ def register_user(request):
         serializer.save()
         return Response(
             {
-                'message': 'User registered successfully'
-            },  status=status.HTTP_201_CREATED,
-
+             'message': 'User registered successfully'   
+            }, status=status.HTTP_201_CREATED,
         )
+    
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -42,9 +42,9 @@ def register_user(request):
 def logout_user(request):
     refresh_token = request.data.get('refresh')
 
-    if not refresh_token:
+    if not refresh_token: 
         return Response({
-            'error': "Refresh Tokeen is required."
+            'error': "Refresh Token is required."
         }, status=status.HTTP_400_BAD_REQUEST,
         )
     
@@ -57,25 +57,26 @@ def logout_user(request):
             'error': "Invalid Token"
         }, status=status.HTTP_400_BAD_REQUEST,
         )
-
+    
     return Response({
-        'messagge': 'User Logged out successfully'
+        'message': 'User Logged out successfully'
     }, status=status.HTTP_205_RESET_CONTENT,
     )
-
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def profile_view(request):
-    serializer = UserSerializer(request.user)                          
+    serializer = UserSerializer(request.user)
     return Response(serializer.data)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def cart_view(request):
-    cart_items = cartUser.objects.filter(user=request.user)
+    cart_items = cartUser.objects.filter(user_id=request.user)
     serializer = CartItemSerializer(cart_items, many=True)
     return Response(serializer.data)
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -85,19 +86,21 @@ def add_to_cart(request):
     if not serializer.is_valid():
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
     product = serializer.validated_data['product']
     qty = serializer.validated_data['qty']
 
     cart_item, created = cartUser.objects.get_or_create(
-        user=request.user,
+        user_id=request.user,
         product=product,
-        defaults={'qty': qty}
+        defaults={'qty':qty},
     )
 
     if not created:
         cart_item.qty += qty
         cart_item.save()
 
+    
     output_serializer = CartItemSerializer(cart_item)
     response_status = status.HTTP_201_CREATED if created else status.HTTP_200_OK
     return Response(output_serializer.data, status=response_status)
@@ -105,80 +108,22 @@ def add_to_cart(request):
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def update_cart_item(request, pk):
-    cart_item = get_object_or_404(cartUser, pk=pk, user=request.user)
-    serializer = CartItemSerializer(cart_item, data=request.data, Partial=True)
+    cart_item = get_object_or_404(cartUser, pk=pk, user_id=request.user)
+    serializer = CartItemSerializer(cart_item, data=request.data, partial=True)
 
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data)
     
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)  
 
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def delete_cart_item(request, pk):
-    cart_item = get_object_or_404(cartUser, pk=pk, user=request.data)
+    cart_item = get_object_or_404(cartUser, pk=pk, user_id=request.user)
     cart_item.delete()
-    
+
     return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

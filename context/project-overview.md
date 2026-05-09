@@ -4,7 +4,7 @@
 
 This project is a full-stack e-commerce training application named **Rivanshop**. It is built with a React + Vite + Tailwind CSS frontend and a Django REST Framework backend.
 
-The application focuses on selling networking and enterprise hardware products, especially Cisco-style switches, routers, and related devices. The backend exposes product, authentication, profile, and cart APIs, while the frontend provides customer-facing pages for browsing products, viewing product details, logging in, registering, and viewing a protected profile page.
+The application focuses on selling networking and enterprise hardware products, especially Cisco-style switches, routers, and related devices. The backend exposes product, authentication, profile, and cart APIs, while the frontend provides customer-facing pages for browsing products, viewing product details, managing a shopping cart, logging in, registering, and viewing a protected profile page.
 
 This documentation was created by scanning the project source while excluding the `Documentation_FST` and `venv` folders.
 
@@ -16,6 +16,8 @@ Primary use cases:
 
 - Customers can browse a product catalog.
 - Customers can open a product details page to view price, stock, image, and description.
+- Customers can add products to the authenticated shopping cart from the product details page.
+- Customers can view a shopping cart UI with live item quantities, item removal, subtotal, total, and checkout action.
 - Customers can log in with JWT-based authentication.
 - Authenticated users can access a protected profile page.
 - The backend includes cart APIs for adding, viewing, updating, and deleting cart items.
@@ -48,14 +50,16 @@ Main frontend technologies:
 Important frontend files:
 
 - `frontend/src/App.jsx` defines the main routes.
-- `frontend/src/components/Header.jsx` provides the top navigation.
+- `frontend/src/components/Header.jsx` provides the top navigation, including links to `/cart` and `/profile` with icons.
 - `frontend/src/components/Hero.jsx` renders the homepage hero section.
 - `frontend/src/pages/Home.jsx` combines the hero and product listing.
 - `frontend/src/pages/Products.jsx` fetches and displays products from the backend.
-- `frontend/src/pages/Product_Details.jsx` fetches one product and displays product details with quantity controls.
+- `frontend/src/pages/Product_Details.jsx` fetches one product, displays product details with quantity controls, and posts authenticated add-to-cart requests.
+- `frontend/src/pages/Cart.jsx` loads authenticated cart items from the backend and supports quantity updates, item removal, order summary, and checkout button.
 - `frontend/src/pages/Login.jsx` authenticates users through the JWT token endpoint.
 - `frontend/src/pages/Register.jsx` contains the registration form UI.
 - `frontend/src/pages/Profile.jsx` renders the protected profile and purchase history layout.
+- `frontend/src/api/Auth_refresh.js` wraps authorized API requests and refreshes expired access tokens with the saved refresh token.
 - `frontend/src/context/AuthProvider.jsx` stores authentication state based on `localStorage`.
 - `frontend/src/context/PrivateRoute.jsx` protects routes that require login.
 
@@ -64,6 +68,7 @@ Current frontend routes:
 - `/` - Home page
 - `/products` - Product catalog
 - `/product/:id` - Product detail page
+- `/cart` - Shopping cart page
 - `/login` - Login page
 - `/register` - Register page
 - `/profile` - Protected profile page
@@ -138,6 +143,8 @@ The project already has the foundation for a complete e-commerce workflow:
 
 - Product browsing is connected to the backend.
 - Product detail pages are connected to the backend.
+- Product detail pages can add items to the authenticated backend cart.
+- The shopping cart page is connected to backend cart endpoints for viewing, updating, and deleting items.
 - Login is connected to JWT authentication.
 - Protected routing is available.
 - Backend cart endpoints exist.
@@ -146,9 +153,8 @@ The project already has the foundation for a complete e-commerce workflow:
 Some areas appear to still be in progress:
 
 - The register page currently has UI structure but does not yet submit to the backend register endpoint.
-- The product detail `Add to cart` action currently logs data instead of calling the cart API.
 - The profile page currently uses sample profile and purchase-history data.
-- Checkout and payment flows have backend model foundations but no complete frontend workflow yet.
+- Checkout and payment flows have backend model foundations, but the checkout button is still UI-only.
 
 ### AI Development Guidance
 
